@@ -1,0 +1,15 @@
+# Build artifacts
+test_main.c
+src/error.c
+inc/error.h
+*.exe
+/build/
+
+# Editor/IDE files
+#.vscode/
+#*.swp
+
+# OS files
+#.DS_Store
+
+
