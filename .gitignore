@@ -3,7 +3,8 @@ test_main.c
 src/error.c
 inc/error.h
 *.exe
-/build/
+build/
+bin/
 
 # Editor/IDE files
 #.vscode/
