@@ -1,10 +1,10 @@
 # Build artifacts
-test_main.c
-src/error.c
-inc/error.h
-*.exe
-build/
-bin/
+#test_main.c
+#src/error.c
+#inc/error.h
+#*.exe
+#build/
+#bin/
 
 # Editor/IDE files
 #.vscode/
