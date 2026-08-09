@@ -43,7 +43,7 @@ typedef enum IoExpanderGpioLevel
 typedef struct IoExpanderHandler
 {
     uint8_t address ;
-    void (*input_state_change_callback[NUM_OF_PORTS]) (void);
+    void (*input_state_change_callback[NUM_OF_PORTS]) (IoExpanderHandler_t *);
     ErrorState_t (*i2c_read) (uint8_t *data, uint8_t lenght, uint8_t address);
     ErrorState_t (*i2c_write) (uint8_t data, uint8_t lenght, uint8_t address);
     IoExpanderGpioState_t gpio_port_dir[NUM_OF_PORTS];

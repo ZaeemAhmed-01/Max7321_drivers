@@ -29,10 +29,6 @@ ErrorState_t io_expander_controller_init( IoExpanderHandler_t *handler)
     // see if the device exits
     ErrorState_t ret = handler->i2c_read(byte_read, 1, ((handler->address)<<1) | 1);
     if(ret != STATE_SUCCESS)    return STATE_FAIL;
-
-    #ifdef USE_PRINTF_LOGGING
-        printf("\n\n Error conditions passed ! \n");
-    #endif
     
     byte_wrote = 0;
     handler->__current_direction_state = 0xFF;
@@ -48,14 +44,6 @@ ErrorState_t io_expander_controller_init( IoExpanderHandler_t *handler)
 
     handler->__last_write = byte_wrote;
 
-
-    #ifdef USE_PRINTF_LOGGING
-        printf(" Bytes wrote : %X\n", byte_wrote);
-    #endif
-
-    #ifdef USE_PRINTF_LOGGING
-        printf(" Task Completed ! \n");
-    #endif
     return STATE_SUCCESS;
 }
 
@@ -82,10 +70,6 @@ ErrorState_t io_expander_gpio_write(IoExpanderHandler_t *handler, uint8_t port, 
     // checking if the port is really output
     if(  (handler->__current_direction_state >> port) & 1 ) return STATE_INVALID_DATA;
 
-    #ifdef USE_PRINTF_LOGGING
-        printf("\n\n Error conditions passed ! \n");
-    #endif
-
     if(level == io_expander_gpio_low)
     {
         byte_wrote = ( handler->__last_write ) & ~(1<<port ) ;
@@ -109,10 +93,6 @@ ErrorState_t io_expander_gpio_write(IoExpanderHandler_t *handler, uint8_t port, 
 
 ErrorState_t io_expander_gpio_read(IoExpanderHandler_t *handler, uint8_t port, IoExpanderGpioLevel_t *level)
 {
-    
-    #ifdef USE_PRINTF_LOGGING
-        printf("\n\n Function is called ! \n");
-    #endif
 
     uint8_t byte_read = 0;
 
@@ -129,11 +109,6 @@ ErrorState_t io_expander_gpio_read(IoExpanderHandler_t *handler, uint8_t port, I
 
     if(port > (NUM_OF_PORTS -1) ) return STATE_INVALID_DATA;
     
-
-    #ifdef USE_PRINTF_LOGGING
-        printf("\n\n Error conditions passed ! \n");
-    #endif
-
     ErrorState_t ret = handler->i2c_read(&byte_read, 1, ( (handler->address)<<1) | 1);
     if(ret != STATE_SUCCESS) return STATE_READ_FAILED;
 
@@ -156,7 +131,37 @@ void io_expander_int_handler(IoExpanderHandler_t *handler);
 
 void io_expander_int_handler(IoExpanderHandler_t *handler)
 {
+    uint8_t byte_read[2] = {0,0};
 
+    if(handler==NULL)
+        return STATE_NULL_POINTER;
+
+    if(handler->i2c_write == NULL || handler->i2c_read == NULL)
+        return STATE_NULL_POINTER;
+
+    if(handler->address > 0x6f || handler->address < 0x60)
+        return STATE_INVALID_DATA;
+
+    #ifdef USE_PRINTF_LOGGING
+        printf("\n\n Error conditions passed ! \n");
+    #endif
+
+    ErrorState_t ret = handler->i2c_read(byte_read, 2, ( (handler->address)<<1) | 1);
+    if(ret != STATE_SUCCESS) return STATE_READ_FAILED;
+
+    uint8_t io_change_flags = byte_read[1];
+
+    for(uint8_t i=0; i<NUM_OF_PORTS; i++)
+    {
+        if( (io_change_flags>>i) & 1)
+        {
+            // IO state changed
+            handler->input_state_change_callback[i](handler);
+        }
+    }
+
+    
+    return STATE_SUCCESS; 
 }
 
 
