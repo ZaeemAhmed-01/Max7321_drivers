@@ -134,20 +134,20 @@ void io_expander_int_handler(IoExpanderHandler_t *handler)
     uint8_t byte_read[2] = {0,0};
 
     if(handler==NULL)
-        return STATE_NULL_POINTER;
+        return ;
 
     if(handler->i2c_write == NULL || handler->i2c_read == NULL)
-        return STATE_NULL_POINTER;
+        return ;
 
     if(handler->address > 0x6f || handler->address < 0x60)
-        return STATE_INVALID_DATA;
+        return ;
 
     #ifdef USE_PRINTF_LOGGING
         printf("\n\n Error conditions passed ! \n");
     #endif
 
     ErrorState_t ret = handler->i2c_read(byte_read, 2, ( (handler->address)<<1) | 1);
-    if(ret != STATE_SUCCESS) return STATE_READ_FAILED;
+    if(ret != STATE_SUCCESS) return ;
 
     uint8_t io_change_flags = byte_read[1];
 
@@ -160,8 +160,7 @@ void io_expander_int_handler(IoExpanderHandler_t *handler)
         }
     }
 
-    
-    return STATE_SUCCESS; 
+
 }
 
 
